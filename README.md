@@ -129,3 +129,8 @@ npm i
 `--staging`，该参数让程序从staging分支上下载。
 
 `--root`，该参数让程序使用`/wisnuc`之外的目录。
+
+## 部署
+
+部署时应独立clone `release`分支，从`staging`分支checkout最新的部署文件，然后commit & push。目前未提供脚本。
+
