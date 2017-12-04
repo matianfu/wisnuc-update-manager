@@ -49,7 +49,12 @@ init(root, githubUrl, (err, model) => {
 
   if (err) {
     console.log('init error', err)
-    app.get('/v1', (req, res) => res.status(503).json({ message: err.message, code: err.code }))
+    if (err.code === 'EACCES') {
+      console.log('You probably need sudo or root permission to run this program.')
+      process.exit(1)
+    } else {
+      app.get('/v1', (req, res) => res.status(503).json({ message: err.message, code: err.code }))
+    }
   } else {
 
     // GET whole view

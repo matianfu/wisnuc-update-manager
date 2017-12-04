@@ -4,11 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node build/main.js",
-    "build": "babel src --out-dir build",
-    "devel": "nodemon --exec babel-node src/devel.js",
-    "webpack": "webpack --watch --watch-poll",
-    "refactor": "nodemon src/app2.js",
+    "start": "node src/app.js",
+    "build": "node_modules/.bin/nexe src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "lewis.ma@winsuntech.cn",
