@@ -30,10 +30,11 @@ class Model extends EventEmitter {
   // root: root directory
   // appBalls: similar to release but has no remote.
   // ctag: current tag_name if found
-  constructor(root, githubUrl, appBalls, tagName, isBeta) {
+  constructor(root, githubUrl, appBalls, tagName, isBeta, globalNode) {
     super()
 
     this.useBeta = false
+    this.globalNode = !!globalNode
 
     this.root = root
     this.githubUrl = githubUrl
@@ -65,7 +66,7 @@ class Model extends EventEmitter {
   }
 
   nodePath () {
-    return 'node' // TODO
+    return this.globalNode ? 'node' : '/wisnuc/node/base/bin/node'
   }
 
   sort () {

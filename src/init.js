@@ -57,7 +57,7 @@ const initAsync = async (root, githubUrl) => {
     await mkdirpAsync(appifiDir)
   }
 
-  return new Model(root, githubUrl, appBalls, tagName, isBeta) 
+  return new Model(root, githubUrl, appBalls, tagName, isBeta, process.argv.includes('--global-node'))
 }
 
 const init = (root, githubUrl, callback) => initAsync(root, githubUrl)
