@@ -6,18 +6,7 @@
 2. `staging`分支用于测试；
 3. `release`分支用于部署；
 
-
-
-
-`staging`和`release`分支中均包含较大的二进制文件（nexe打包文件）；
-
-
-
-`staging`分支每次更新都会采用force push方式清空原有内容；`release`分支也可能以同样方式定期清理；以保持项目池文件容量不会太大。
-
-
-
-这三个分支之间彼此独立，不存在git merge逻辑。
+这三个分支之间彼此独立，不存在merge逻辑；`staging`和`release`分支中均包含较大的二进制文件（nexe打包文件），且每次更新使用force push全部更新。
 
 
 
@@ -31,13 +20,12 @@
 
 
 
-## Developers
+## 开发者（主分支）
 
 对开发者，包括客户端开发者，可以使用如下方式安装和启动该服务。
 
 
-
-使用git的`--single-branch`参数clone源代码，者可以避免下载含有较大文件的`staging`和`release`分支。
+使用git的`--single-branch`参数clone源代码，者可以避免下载含有较大二进制文件的`staging`和`release`分支。
 
 ```bash
 ## clone
@@ -51,12 +39,11 @@ npm i
 ```
 
 
-
 ### 启动目标与参数
 
 `--root`参数可以指定下载的根目录，如果不提供默认使用`/wisnuc`，会需要root权限。
 
-`--global-node`参数可以指定程序使用全局的node（或当前shell的）启动appifi；如果不提供会使用如下路径：
+`--global-node`参数可以指定程序使用全局的node（或当前shell的）启动appifi；如果不提供会使用如下路径（这是新的系统部署约定）：
 
 ```bash
 /wisnuc/node/base/bin/node
@@ -98,7 +85,7 @@ npm run build
 
 ## Staging
 
-该操作可能会损毁本地git池或其他分支，所以操作应该独立clone代码池，不应该和开发代码池混合使用。推荐在云服务器上操作。
+执行该操作应使用独立clone的代码池，不应该使用开发用代码池。推荐在云服务器上操作。
 
 
 
@@ -111,12 +98,11 @@ git clone https://github.com/wisnuc/wisnuc-bootstrap --branch master --single-br
 # change directory
 cd wisnuc-bootstrap
 
-# install
-npm i
-
 # run script
 ./stage.sh
 ```
+
+注意该操作从`master`分支开始。
 
 
 
@@ -130,7 +116,24 @@ npm i
 
 `--root`，该参数让程序使用`/wisnuc`之外的目录。
 
-## 部署
 
-部署时应独立clone `release`分支，从`staging`分支checkout最新的部署文件，然后commit & push。目前未提供脚本。
 
+## 发布
+
+执行该操作应使用独立clone的代码池，不应该使用开发用代码池。推荐在云服务器上操作。
+
+```
+# clone the full repo
+git clone https://github.com/wisnuc/wisnuc-bootstrap
+
+# change directory
+cd wisnuc-bootstrap
+
+# checkout release branch
+git checkout release
+
+# run script
+./release.sh
+```
+
+注意：该操作和`staging`不同，需要切换到`release`分支上工作。
