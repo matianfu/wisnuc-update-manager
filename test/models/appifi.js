@@ -20,102 +20,46 @@ const appifiDir = path.join(tmptest, 'appifi')
 const tmpDir = path.join(tmptest, 'tmp')
 
 const mctx = {
-  nodePath: 'node',
+  nodePath: () => 'node',
   tmpDir,
   appBallsDir,
   appifiDir
 }
 
-const fakeNoTimeoutScript = `
-  process.on('message', 
-`
+describe(path.basename(__filename), () => {
 
-describe(path.basename(__filename) + ' non-start-stop', () => {
 
   beforeEach(() => {
     rimraf.sync(tmptest)
     mkdirp.sync(appBallsDir)
-    mkdirp.sync(appifiDir)
+    mkdirp.sync(path.join(appifiDir, 'build'))
     mkdirp.sync(tmpDir)
   })
 
-  it('new Appifi with empty appifi dir should end at Empty state with empty dir', done => {
-    let appifi = new Appifi(mctx)
-    appifi.once('Empty', () => {
-      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
-      done()
-    })
+  it('create and destroy appifi, 2b54e072', done => {
+    const fakeScript = `setInterval(() => console.log('tick'), 1000)`
+    fs.writeFileSync(path.join(appifiDir, 'build', 'app.js'), fakeScript)
+
+    const tagName = '0.9.14'
+    let appifi = new Appifi(mctx, tagName)
+    expect(appifi.ctx).to.equal(mctx)
+    expect(appifi.tagName).to.equal(tagName)
+    expect(appifi.appifiDir).to.equal(mctx.appifiDir)
+    expect(appifi.getState()).to.equal('Starting')
+    expect(appifi.startCbs).to.deep.equal([])
+    expect(appifi.stopCbs).to.deep.equal([])
+    appifi.destroy()
+    expect(appifi.getState()).to.equal('Starting')
+    expect(appifi.state.appifi).to.be.null
+    expect(appifi.state.timer).to.be.null
+    done()
   }) 
 
-  it('new Appifi with invalid appifi dir should end at Empty state with empty dir', done => {
-    mkdirp.sync(path.join(appifiDir, 'hello'))
-    let appifi = new Appifi(mctx)
-    appifi.once('Empty', () => {
-      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
-      done()
-    })
-  })
+  it('starting -> stared by timeout (8s), 52b59a41', function (done) {
+  }) 
 
-  it('new Appifi with invalid .release.json should end at Empty state with empty dir', done => {
-    fs.writeFileSync(path.join(appifiDir, './release.json'), '^&^&^&*^&*')
-    let appifi = new Appifi(mctx)
-    appifi.once('Empty', () => {
-      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
-      done()
-    })
-  })
-
-  it('new Appifi with valid appifi deployment should end at Stopped state, d277f05f', function (done) {
-    this.timeout(5000)
-
-    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
-    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
-    let appifi = new Appifi(mctx)
-    appifi.once('Stopped', () => {
-      expect(appifi.release.tag_name).to.equal('0.9.14')
-      done()
-    })
-  })
-
-  it('(low level) uninstall Stopped Appifi should end in Empty', function (done) {
-    this.timeout(5000)
-    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
-    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
-
-    let appifi = new Appifi(mctx)
-    appifi.once('Stopped', () => {
-      // this is synchronous state transition 
-      appifi.state.setState('Empty') 
-      expect(fs.readdirSync(appifiDir)).to.deep.equal([]) 
-      done()
-    })
-  })
-
-  it('(low level) new Empty appifi install', function (done) {
-    this.timeout(10000)
-    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
-    let appifi = new Appifi(mctx)
-    appifi.once('Empty', () => {
-      appifi.state.setState('Installing', tarball)
-      appifi.once('Stopped', () => {
-        expect(appifi.release.tag_name).to.equal('0.9.14')
-        done()
-      })
-    })
-  })
-
-  it('(low level) start', function (done) {
-    this.timeout(10000)
-
-    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
-    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
-    let appifi = new Appifi(mctx)
-    appifi.once('Stopped', () => {
-      expect(appifi.release.tag_name).to.equal('0.9.14')
-      done()
-    })
-  })
 })
+
 
 /**
 Stopped -> Starting -> Started (timeout)
@@ -272,3 +216,95 @@ setTimeout(() => process.send('child started'), 1000)
   }) 
 
 })
+
+
+/**
+describe(path.basename(__filename) + ' non-start-stop', () => {
+
+  beforeEach(() => {
+    rimraf.sync(tmptest)
+    mkdirp.sync(appBallsDir)
+    mkdirp.sync(appifiDir)
+    mkdirp.sync(tmpDir)
+  })
+
+  it('new Appifi with empty appifi dir should end at Empty state with empty dir', done => {
+    let appifi = new Appifi(mctx)
+    appifi.once('Empty', () => {
+      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
+      done()
+    })
+  }) 
+
+  it('new Appifi with invalid appifi dir should end at Empty state with empty dir', done => {
+    mkdirp.sync(path.join(appifiDir, 'hello'))
+    let appifi = new Appifi(mctx)
+    appifi.once('Empty', () => {
+      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
+      done()
+    })
+  })
+
+  it('new Appifi with invalid .release.json should end at Empty state with empty dir', done => {
+    fs.writeFileSync(path.join(appifiDir, './release.json'), '^&^&^&*^&*')
+    let appifi = new Appifi(mctx)
+    appifi.once('Empty', () => {
+      expect(fs.readdirSync(appifiDir)).to.deep.equal([])
+      done()
+    })
+  })
+
+  it('new Appifi with valid appifi deployment should end at Stopped state, d277f05f', function (done) {
+    this.timeout(5000)
+
+    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
+    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
+    let appifi = new Appifi(mctx)
+    appifi.once('Stopped', () => {
+      expect(appifi.release.tag_name).to.equal('0.9.14')
+      done()
+    })
+  })
+
+  it('(low level) uninstall Stopped Appifi should end in Empty', function (done) {
+    this.timeout(5000)
+    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
+    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
+
+    let appifi = new Appifi(mctx)
+    appifi.once('Stopped', () => {
+      // this is synchronous state transition 
+      appifi.state.setState('Empty') 
+      expect(fs.readdirSync(appifiDir)).to.deep.equal([]) 
+      done()
+    })
+  })
+
+  it('(low level) new Empty appifi install', function (done) {
+    this.timeout(10000)
+    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
+    let appifi = new Appifi(mctx)
+    appifi.once('Empty', () => {
+      appifi.state.setState('Installing', tarball)
+      appifi.once('Stopped', () => {
+        expect(appifi.release.tag_name).to.equal('0.9.14')
+        done()
+      })
+    })
+  })
+
+  it('(low level) start', function (done) {
+    this.timeout(10000)
+
+    let tarball = 'testdata/appifi-0.9.14-8501308-c8ffd8ab-rel.tar.gz'
+    child.execSync(`tar xzf ${tarball} -C ${appifiDir}`)
+    let appifi = new Appifi(mctx)
+    appifi.once('Stopped', () => {
+      expect(appifi.release.tag_name).to.equal('0.9.14')
+      done()
+    })
+  })
+})
+**/
+
+

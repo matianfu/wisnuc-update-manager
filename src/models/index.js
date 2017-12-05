@@ -27,9 +27,15 @@ const EApp404 = Object.assign(new Error('app not installed'), { code: 'ENOTFOUND
 
 class Model extends EventEmitter {
 
-  // root: root directory
-  // appBalls: similar to release but has no remote.
-  // ctag: current tag_name if found
+  /**
+  Create the model
+  @param {string} root - deployment root directory, such as '/wisnuc'
+  @param {string} githubUrl - the gihub release api url 
+  @param {string} appBalls - local tarballs, with local (manifest), path, and config (package.json) in future.
+  @param {string} tagName - currently deployed version, such as '0.9.14'
+  @param {boolean} isBeta - true if currently deployed release is prerelease
+  @param {boolean} globalNode - use globally installed node, rather than local one
+  */
   constructor(root, githubUrl, appBalls, tagName, isBeta, globalNode) {
     super()
 

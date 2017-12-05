@@ -12,6 +12,16 @@ const Base = require('./state')
 class State extends Base {
   start () {}
   stop () {}
+
+  destroy () {
+    if (this.appifi) {
+      this.appifi.removeAllListeners()
+      this.appifi.on('error', () => {})
+      this.appifi.kill()
+      this.appifi = null
+    }
+    super.destroy()
+  }
 }
 
 class Stopped extends State {
@@ -50,8 +60,10 @@ class Starting extends State {
   exit () {
     if (this.appifi) this.appifi.removeAllListeners()
     clearTimeout(this.timer)
+    this.timer = null
     super.exit()
   }
+
 }
 
 class Started extends State {
@@ -74,6 +86,7 @@ class Started extends State {
     if (this.appifi) this.appifi.removeAllListeners()
     super.exit()
   }
+
 }
 
 // Stopping can only be entered when being stopped externally, so it always goes to Stopped state
@@ -85,6 +98,7 @@ class Stopping extends State {
     appifi.on('error', err => console.log('Appifi Error in Started: neglected', err))
     appifi.on('close', (code, signal) => this.setState('Stopped'))
   }
+
 }
 
 // Failed and Started are XOR destination of start operation
@@ -95,8 +109,8 @@ class Failed extends State {
     this.error = err
     this.timer = setTimeout(() => this.setState('Starting'), 100) 
 
-    this.startCbs.forEach(cb => cb(this.error))
-    this.startCbs = []
+    this.ctx.startCbs.forEach(cb => cb(this.error))
+    this.ctx.startCbs = []
     // failed can only be landed on start request
     // this.stopCbs.forEach(cb => cb(this.error))
   }
@@ -111,6 +125,7 @@ class Failed extends State {
 
   exit () {
     clearTimeout(this.timer) 
+    this.timer = null
     super.exit()
   }
 }
@@ -118,7 +133,9 @@ class Failed extends State {
 class Appifi extends EventEmitter {
 
   /**
-  ctx is the model. ctx.releases is guaranteed to be available.
+  Create Appifi
+  @param {object} ctx - the model. ctx.releases is guaranteed to be available.
+  @param {string} tagName - the currently deployed version
   */
   constructor(ctx, tagName) {
     super()
@@ -202,6 +219,18 @@ class Appifi extends EventEmitter {
       state: this.getState(),
       tagName: this.tagName
     }
+  }
+
+  destroy () {
+    this.state.destroy()
+
+    let err = new Error('app is destroyed')
+    err.code = 'EDESTROYED'
+    
+    this.startCbs.forEach(cb => cb(err))
+    this.stopCbs.forEach(cb => cb(err))
+    this.startCbs = []
+    this.stopCbs = []
   }
 }
 
