@@ -22,7 +22,7 @@ openssl dgst -sha256 app | awk '{print $2}' > wisnuc-bootstrap-linux-x64-sha256
 mv app wisnuc-bootstrap-linux-x64
 
 # dup gitignore
-cp .gitignore.release .gitignore
+# cp .gitignore.release .gitignore
 
 # clean
 rm -rf docs
@@ -35,6 +35,7 @@ rm -rf *.json
 rm -rf *.sh
 rm -rf node_modules
 rm -rf .git
+
 
 # reinit
 git init
