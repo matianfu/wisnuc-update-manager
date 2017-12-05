@@ -2,26 +2,15 @@
 
 set -e
 
-echo "after this operation the local master branch is corrupted"
+echo "after this operation other branchs are corrupted"
 
 # wisnuc-bootstrap-linux-x64
 # wisnuc-bootstrap-linux-x64-sha256 
 # wisnuc-bootstrap-linux-a64
 # wisnuc-bootstrap-linux-a64-sha256 
 
-rm -rf app
-
-# generate output
-node_modules/.bin/nexe src/app.js
-
-# checksum
-openssl dgst -sha256 app | awk '{print $2}' > wisnuc-bootstrap-linux-x64-sha256
-
-# rename
-mv app wisnuc-bootstrap-linux-x64
-
-# dup gitignore
-cp .gitignore.release .gitignore
+git checkout origin/staging -- wisnuc-bootstrap-linux-x64
+git checkout origin/staging -- wisnuc-bootstrap-linux-x64-sha256
 
 # reset 
 rm -rf .git
