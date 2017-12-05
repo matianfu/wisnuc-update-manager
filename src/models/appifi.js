@@ -7,11 +7,33 @@ const EventEmitter = require('events')
 const rimraf = require('rimraf')
 const mkdirp = require('mkdirp')
 
-const Base = require('./state')
+const debug = require('debug')('model')
 
-class State extends Base {
-  start () {}
-  stop () {}
+/**
+nexe does not work properly for unknown reason.
+*/
+class State {
+
+  constructor(ctx, ...args) {
+    this.ctx = ctx
+    ctx.state = this
+    this.enter(...args)
+
+    if (ctx instanceof EventEmitter) ctx.emit(this.constructor.name)
+  }
+
+  setState (state, ...args) {
+    this.exit()
+    new this.ctx[state](this.ctx, ...args)
+  }
+
+  enter () {
+    debug(`${this.ctx.constructor.name} enter ${this.constructor.name} state`)
+  }
+
+  exit () {
+    debug(`${this.ctx.constructor.name} exit ${this.constructor.name} state`)
+  }
 
   destroy () {
     if (this.appifi) {
@@ -20,9 +42,18 @@ class State extends Base {
       this.appifi.kill()
       this.appifi = null
     }
-    super.destroy()
+
+    exit()
   }
+
+  start () {}
+
+  stop () {}
+
+  view () { return null }
+
 }
+
 
 class Stopped extends State {
 

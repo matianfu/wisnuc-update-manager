@@ -16,7 +16,7 @@ const probeAppBallsAsync = Promise.promisify(probeAppBalls)
 
 // pick .release.json
 const probeAppifi = (dir, callback) => 
-  fs.readFile(path.join(dir, './release.json'), (err, data) => {
+  fs.readFile(path.join(dir, '.release.json'), (err, data) => {
     if (err) return callback(err)
     try {
       callback(null, JSON.parse(data))
@@ -43,9 +43,11 @@ const initAsync = async (root, githubUrl) => {
   try {
     let release = await probeAppifiAsync(appifiDir)
 
+    console.log('deployed release', release)
+
     if (release) {
       let localTagNames = appBalls.map(ball => ball.local.tag_name)
-      if (localTagnames.includes(release.tag_name)) {
+      if (localTagNames.includes(release.tag_name)) {
         tagName = release.tag_name
         isBeta = release.prerelease
       } else {
@@ -53,11 +55,22 @@ const initAsync = async (root, githubUrl) => {
       }
     } 
   } catch (e) {
+    console.log(e)
     await rimrafAsync(appifiDir)
     await mkdirpAsync(appifiDir)
   }
 
-  return new Model(root, githubUrl, appBalls, tagName, isBeta, process.argv.includes('--global-node'))
+  const useGlobalNode = !!process.argv.includes('--global-node')
+
+  console.log('initAsync')
+  console.log('root', root)
+  console.log('githubUrl', githubUrl)
+  console.log('appBalls', appBalls)
+  console.log('tagName', tagName)
+  console.log('isBeta', isBeta)
+  console.log('useGlobalNode', useGlobalNode) 
+
+  return new Model(root, githubUrl, appBalls, tagName, isBeta, useGlobalNode)
 }
 
 const init = (root, githubUrl, callback) => initAsync(root, githubUrl)

@@ -16,7 +16,8 @@ class State {
 
   setState (state, ...args) {
     this.exit()
-    new this.ctx[state](this.ctx, ...args)
+    let NextState = this.ctx[state]
+    new NextState(this.ctx, ...args)
   }
 
   enter () {
