@@ -9,7 +9,8 @@ echo "after this operation the local master branch is corrupted"
 # wisnuc-bootstrap-linux-a64
 # wisnuc-bootstrap-linux-a64-sha256 
 
-rm -rf app
+# npm
+npm i
 
 # generate output
 node_modules/.bin/nexe src/app.js
@@ -23,8 +24,19 @@ mv app wisnuc-bootstrap-linux-x64
 # dup gitignore
 cp .gitignore.release .gitignore
 
-# reset 
+# clean
+rm -rf docs
+rm -rf sandbox
+rm -rf src
+rm -rf test
+rm -rf testdata
+rm -rf .gitignore
+rm -rf *.json
+rm -rf *.sh
+rm -rf node_modules
 rm -rf .git
+
+# reinit
 git init
 git add .
 git commit -a -m 'reinit'
