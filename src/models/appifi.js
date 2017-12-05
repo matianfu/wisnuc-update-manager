@@ -75,7 +75,7 @@ class Started extends State {
     this.appifi.on('error', err => console.log('Appifi Error in Started: neglected', err))
     this.appifi.on('close', (code, signal) => (this.appifi = null, this.setState('Failed', { code, signal})))
 
-    this.ctx.ctx.emit('appifiStarted')
+    // this.ctx.ctx.emit('appifiStarted')
   }
 
   stop () {
@@ -109,10 +109,9 @@ class Failed extends State {
     this.error = err
     this.timer = setTimeout(() => this.setState('Starting'), 100) 
 
+    // failed can only be landed for start request
     this.ctx.startCbs.forEach(cb => cb(this.error))
     this.ctx.startCbs = []
-    // failed can only be landed on start request
-    // this.stopCbs.forEach(cb => cb(this.error))
   }
 
   start () {
