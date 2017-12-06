@@ -132,7 +132,7 @@ const untarDry = (tarpath, callback) => {
     destroy: () => {
       if (destroyed || finished) return
       destroyed = true
-      c.kill()
+      child.kill()
     }
   }
 }
