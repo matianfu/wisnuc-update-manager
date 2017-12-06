@@ -71,6 +71,10 @@ class Model extends EventEmitter {
     }
   }
 
+  setBeta (val) {
+    this.useBeta == !!val
+  }
+
   nodePath () {
     return this.globalNode ? 'node' : '/wisnuc/node/base/bin/node'
   }
@@ -143,6 +147,7 @@ class Model extends EventEmitter {
 
   async installAsync (tagName) {
     // find release
+    console.log(`installAsync tagName ${tagName}`)
     let release = this.releases.find(r => r.local && r.local.tag_name === tagName)
     if (!release) {
       let err = new Error('release not found for given tag name')
@@ -223,6 +228,9 @@ class Model extends EventEmitter {
   }
 
   releaseStart(tagName, callback) {
+
+    console.log(`releaseStart, tagName ${tagName}`)
+
     let release = this.releases.find(r => r.tagName() === tagName)
     if (!release) {
       let err = new Error('release not found for given tag name')

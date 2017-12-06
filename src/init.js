@@ -37,6 +37,16 @@ const initAsync = async (root, githubUrl) => {
   await mkdirpAsync(appifiDir)  
   await mkdirpAsync(appBallsDir)
 
+  let config = {}
+  try {
+    let raw = fs.readFileSync(path.join(root, 'bootstrap.config.json'))
+    config = JSON.parse(raw)
+  } catch (e) {
+    if (e.code !== 'ENOENT') {
+      console.log('WARNING error loading bootstrap.config.json', e)
+    }
+  }
+
   let appBalls = await probeAppBallsAsync(appBallsDir)
 
   let tagName, isBeta

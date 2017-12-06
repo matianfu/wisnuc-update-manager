@@ -1,6 +1,7 @@
 const Promise = require('bluebird')
 const path = require('path')
 const fs = Promise.promisifyAll(require('fs'))
+const child = require('child_process')
 
 const mkdirp = require('mkdirp')
 const mkdirpAsync = Promise.promisify(mkdirp)
@@ -11,6 +12,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 
+const hostname = require('./lib/hostname')
 const init = require('./init')
 
 /** constants **/
@@ -59,6 +61,16 @@ init(root, githubUrl, (err, model) => {
 
     // GET whole view
     app.get('/v1', (req, res) => res.status(200).json(model.view()))
+
+    app.patch('/v1', (req, res) => {
+      let { beta } = req.body 
+      if (typeof beta !== 'boolean') {
+        res.status(400).json({ message: 'beta must be a boolean value' })
+      } else {
+        model.setBeta(beta)
+        res.status(200).end()
+      }
+    })
 
     // Start or Stop App
     app.patch('/v1/app', (req, res, next) => {
@@ -112,6 +124,13 @@ init(root, githubUrl, (err, model) => {
     } else {
       console.log('Bootstrap started')
     }
+
+    let broadcast = child.spawn('avahi-publish-service' ,['Wisnuc Appifi Boostrap', '_http._tcp' , '3001'])
+    broadcast.on('error', err => console.log('broadcast error', err))
+    broadcast.on('close', (code, signal) => {
+      console.log(`broadcast exit with code ${code} and signal ${signal}, no retry, please restart service`)
+    })
+
   }) 
 
 })

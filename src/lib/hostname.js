@@ -42,9 +42,8 @@ const hostname = err => {
         hostname = `wisnuc-tmp-${sanitize(UUID.v4()).slice(0, 8)}`
     }
 
-    child.exec(`avahi-set-host-name ${hostname}`, err => {
-      console.log(`avahi set hostname to ${hostname}`)
-    })
+    child.exec(`avahi-set-host-name ${hostname}`, err => 
+      console.log(`avahi set hostname to ${hostname}`))
   })
 }
 
