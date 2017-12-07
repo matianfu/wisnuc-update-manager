@@ -69,7 +69,14 @@ class Starting extends State {
 
     const opts = {
       cwd: this.ctx.appifiDir,
-      env: { NODE_ENV: 'production' },
+
+      /**
+      node must be in path, for there is no global node in future
+      */
+      env: Object.assign({}, process.env, { 
+        PATH: `/wisnuc/node/base/bin:${process.env.PATH}`,
+        NODE_ENV: 'production' 
+      }),
       stdio: ['ignore', 'inherit', 'inherit', 'ipc'] 
     }
     let appPath = path.join(this.ctx.appifiDir, 'build', 'app.js')
