@@ -15,9 +15,11 @@ class State extends Base {
   start () {}
   stop () {}
 
-  view () {
-    return null
+  destroy () { 
+    this.exit() 
   }
+
+  view () { return null }
 }
 
 // has local, with or without remote
@@ -28,6 +30,8 @@ class Ready extends State {
     Object.assign(this.ctx, props)
     this.ctx.ctx.reqSchedule()
   }
+
+  // start/stop is meaningless, nothing to destroy
 }
 
 
@@ -37,6 +41,8 @@ class Idle extends State {
   start () {
     this.setState('Downloading')
   }
+
+  // already stopped, nothing to destroy
 }
 
 // timeout to download 
@@ -64,11 +70,20 @@ class Failed extends State {
     }
   }
 
+  /**
+  Instantly go to Downloading if `instant` is true. 
+  Otherwise, Failed is considered to be a started state. 
+  In contrary to Idle, it WILL start in future and hence is a live/transient state.
+  @param {boolean} instant - whether go to Downloading state instantly 
+  */
   start (instant) {
-    if (instant) {
-      this.setState('Downloading')
-    }
+    if (instant) this.setState('Downloading')
   }
+
+  stop () {
+    this.setState('Idle')
+  }
+
 }
 
 class Downloading extends State {
@@ -134,6 +149,7 @@ class Repacking extends State {
     super.exit()
   }
 
+  // FIXME clean resources
   stop () {
     this.setState('Idle')
   }
@@ -183,6 +199,7 @@ class Verifying extends State {
     super.exit()
   }
 
+  // FIXME clean resources
   stop () {
     this.setState('Idle')
   }

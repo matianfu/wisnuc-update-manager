@@ -16,7 +16,8 @@ const tmptest = path.join(cwd, 'tmptest')
 
 const mctx = {
   tmpDir: path.join(tmptest, 'tmp'),
-  appBallsDir: path.join(tmptest, 'appifi-tarballs')
+  appBallsDir: path.join(tmptest, 'appifi-tarballs'),
+  reqSchedule: () => {}
 }
 
 const mjson = `
@@ -94,9 +95,9 @@ describe(path.basename(__filename), () => {
       done()
     })
 
-  it('new Release from ball should be in Idle state', done => {
+  it('new Release from ball should be in Ready state', done => {
     let r = new Release(mctx, mball)
-    expect(r.state.constructor.name).to.equal('Idle')
+    expect(r.state.constructor.name).to.equal('Ready')
     done()
   })
 
@@ -147,17 +148,31 @@ describe(path.basename(__filename), () => {
     done()
   })
 
-  it('try download', function (done) {
+  it('start @ Idle', function (done) {
     this.timeout(0) 
-
     let r = new Release(mctx, { remote: mrel })
-    r.download(err => {
-      if (err) return done(err)
-
-      expect(r.path).to.equal('/home/wisnuc/appifi-bootstrap/tmptest/appifi-tarballs/appifi-0.9.14-8501308-c8ffd8ab.tar.gz')
-      expect(r.remote).to.deep.equal(r.local)
-      expect(r.config.name).to.equal('appifi')
+    let timer
+    r.on('Ready', () => {
+      clearInterval(timer)
+      expect(r.path).to.equal('/home/wisnuc/wisnuc-bootstrap/tmptest/appifi-tarballs/appifi-0.9.14-8501308-c8ffd8ab.tar.gz')
+      expect(typeof r.local === 'object').to.be.true
+      expect(typeof r.config === 'object').to.be.true
       done()
     })
+
+    r.start()
+    timer = setInterval(() => console.log(r.getState(), r.state.view()), 1000)
   })
+
+  it('stop @ Downloading, 47c29f57', function (done) {
+    let r = new Release(mctx, { remote: mrel })
+    r.start()
+    
+    setTimeout(() => {
+      r.stop()
+      expect(r.getState()).to.equal('Idle')
+      done()
+    }, 100)
+  })
+
 })
