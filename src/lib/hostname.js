@@ -22,7 +22,7 @@ const sanitize = (string) => {
   return string.split('').filter(c => /^[A-Za-z0-9]$/.test(c)).join('') 
 }
 
-const hostname = err => {
+const hostname = callback => {
 
   sysid((err, id) => {
     let hostname
@@ -42,8 +42,15 @@ const hostname = err => {
         hostname = `wisnuc-tmp-${sanitize(UUID.v4()).slice(0, 8)}`
     }
 
-    child.exec(`avahi-set-host-name ${hostname}`, err => 
-      console.log(`avahi set hostname to ${hostname}`))
+    child.exec(`avahi-set-host-name ${hostname}`, (err, stdout, stderr) => {
+      if (err) {
+        console.log(`WARNING failed to set avahi hostname ${hostname}`, err)
+        callback(err)
+      } else {
+        console.log(`INFO avahi set hostname to ${hostname}`)
+        callback(null)
+      }
+    })
   })
 }
 
