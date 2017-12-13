@@ -47,7 +47,7 @@ app.use(bodyParser.json())
 app.get('/', (req, res) => res.status(200).send(html))
 app.get('/ping', (req, res) => res.status(200).json({ message: 'pong' }))
 app.get('/log', (req, res) => {
-  let cmd = child.spawn('journalctl', ['-u', 'appifi-bootstrap'])
+  let cmd = child.spawn('journalctl', ['-u', 'wisnuc-bootstrap'])
   cmd.on('error', err => {})
   cmd.stdout.pipe(res)
 })
