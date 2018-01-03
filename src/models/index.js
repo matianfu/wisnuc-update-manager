@@ -19,6 +19,7 @@ const Appifi = require('./appifi')
 const Fetch = require('./fetch')
 const Release = require('./release')
 const Node = require('./node')
+const Deb = require('./deb')
 
 const ERace = Object.assign(new Error('another operation is in progress'), { code: 'ERACE', status: 403 })
 const EApp404 = Object.assign(new Error('app not installed'), { code: 'ENOTFOUND', status: 404 })
@@ -69,6 +70,15 @@ class Model extends EventEmitter {
       this.appifi = new Appifi(this, tagName)
       this.useBeta = !!isBeta
     }
+/**
+142 chroot ${TARGET} /bin/bash -c "apt -y install sudo initramfs-tools openssh-server parted vim-common tzdata net-tools iputils-ping"
+143 chroot ${TARGET} /bin/bash -c "apt -y install avahi-daemon avahi-utils btrfs-tools udisks2"
+144 chroot ${TARGET} /bin/bash -c "apt -y install libimage-exiftool-perl imagemagick ffmpeg"
+145 chroot ${TARGET} /bin/bash -c "apt -y install samba rsyslog minidlna"
+**/
+
+    let names = ['libimage-exiftool-perl', 'imagemagick', 'ffmpeg']
+    this.deb = new Deb(names)
   }
 
   setBeta (val) {
