@@ -37,6 +37,7 @@ const initAsync = async (root, githubUrl) => {
   await mkdirpAsync(appifiDir)  
   await mkdirpAsync(appBallsDir)
 
+  // useless and harmless
   let config = {}
   try {
     let raw = fs.readFileSync(path.join(root, 'bootstrap.config.json'))
@@ -47,10 +48,12 @@ const initAsync = async (root, githubUrl) => {
     }
   }
 
+  // load local tarballs
   let appBalls = await probeAppBallsAsync(appBallsDir)
 
   let tagName, isBeta
   try {
+    // detect working directory
     let release = await probeAppifiAsync(appifiDir)
 
     console.log('deployed release', release)
@@ -70,6 +73,7 @@ const initAsync = async (root, githubUrl) => {
     await mkdirpAsync(appifiDir)
   }
 
+  // may be for developers using source code to start 
   const useGlobalNode = !!process.argv.includes('--global-node')
 
   console.log('initAsync')
