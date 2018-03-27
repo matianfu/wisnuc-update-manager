@@ -43,7 +43,7 @@ class State {
       this.appifi = null
     }
 
-    exit()
+    this.exit()
   }
 
   start () {}

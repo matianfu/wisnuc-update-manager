@@ -66,6 +66,12 @@ class Model extends EventEmitter {
 
     this.appifi = null
 
+    process.on('uncaughtException', err => {
+      console.log('uncaughtException', err)
+      if (this.appifi) this.appifi.destroy()
+      process.exit()
+    })
+
     if (tagName) {
       this.appifi = new Appifi(this, tagName)
       this.useBeta = !!isBeta
