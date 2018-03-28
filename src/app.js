@@ -95,13 +95,19 @@ init(root, githubUrl, (err, model) => {
     app.put('/v1/app', (req, res, next) => 
       model.appInstall(req.body.tagName, err => err ? next(err) : res.status(200).end()))
 
-    // Start download instantly
-    app.patch('/v1/releases/:tagName', (req, res, next) => 
-      model.releaseStart(req.params.tagName, err => err ? next(err) : res.status(200).end()))
-
-    // Stop download instantly
-    app.patch('/v1/releases/:tagName', (req, res, next) => 
-      model.releaseStop(req.params.tagName, err => err ? next(err) : res.status(200).end()))
+    // Start or stop download instantly
+    app.patch('/v1/releases/:tagName', (req, res, next) => {
+      let { state } = req.body
+      if (state !== 'Ready' && state !== 'Idle') {
+        res.status(400).json({ message: 'state must be either Ready or Idle'})
+      } else {
+        if (state === 'Ready') {
+          model.releaseStart(req.params.tagName, err => err ? next(err) : res.status(200).end())
+        } else {
+          model.releaseStop(req.params.tagName, err => err ? next(err) : res.status(200).end())
+        }
+      }
+    })
 
     // Start refresh instantly
     app.patch('/v1/fetch', (req, res, next) => 

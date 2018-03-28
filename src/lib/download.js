@@ -84,7 +84,6 @@ class Working extends State {
     })
 
     this.ws = fs.createWriteStream(this.ctx.tmpfile)
-    this.ctx.bytesWritten = this.ws.bytesWritten
     this.ws.on('error', err => {
       this.destroy()
       this.ctx.emit('error', err)
@@ -104,13 +103,17 @@ class Working extends State {
     this.rs.pipe(this.ws)
   }
 
+  bytesWritten() {
+    return this.ws.bytesWritten
+  }
+
   destroy() {
     this.rs.removeAllListeners('error')
     this.rs.removeAllListeners('response')
     this.rs.on('error', () => {})
     this.ws.removeAllListeners()
     this.ws.on('error', () => {})
-    this.rs.destroy()
+    this.rs.abort()
     this.ws.destroy()
 
     super.destroy()
@@ -126,7 +129,11 @@ class Download extends EventEmitter {
     new Working(this)
   }
 
-  distory() {
+  bytesWritten() {
+    return this.state.bytesWritten()
+  }
+
+  destroy() {
     this.state.destroy()
   }
 }

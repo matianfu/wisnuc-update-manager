@@ -136,7 +136,7 @@ class Downloading extends State {
   view () {
     return {
       length: this.download.length, 
-      bytesWritten: this.download.bytesWritten
+      bytesWritten: this.download.bytesWritten()
     }
   }
 }
