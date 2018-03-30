@@ -39,11 +39,13 @@
 3. appifi (stable or beta)
 
 beta on
+download the latest release, no matter it is prerelease or not
 1. release download may be influenced. time consuming
 2. file system (not affected)
 3. appifi (not affected) // user action -> appInstall latest release
 
 beta off
+download the latest stable release
 1. abort active beta release download if applicable
 2. file system (no need to remove beta tarball)
 3. (concurrently) appInstall latest stable release (downgrade)

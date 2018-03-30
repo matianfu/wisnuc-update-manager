@@ -67,15 +67,20 @@ init(root, githubUrl, (err, model) => {
     // GET whole view
     app.get('/v1', (req, res) => res.status(200).json(model.view()))
 
+    // control betaOn or betaOff
     app.patch('/v1', (req, res) => {
-      let { beta } = req.body 
-      if (typeof beta !== 'boolean') {
-        res.status(400).json({ message: 'beta must be a boolean value' })
+      let { betaOn } = req.body 
+      if (typeof betaOn !== 'boolean') {
+        res.status(400).json({ message: 'betaOn must be a boolean value' })
       } else {
-        model.setBeta(beta)
+        model.setBeta(betaOn)
         res.status(200).end()
       }
     })
+
+    // Install App
+    app.put('/v1/app', (req, res, next) => 
+      model.appInstall(req.body.tagName, err => err ? next(err) : res.status(200).end()))
 
     // Start or Stop App
     app.patch('/v1/app', (req, res, next) => {
@@ -90,10 +95,6 @@ init(root, githubUrl, (err, model) => {
         }
       }
     })
-
-    // Install App
-    app.put('/v1/app', (req, res, next) => 
-      model.appInstall(req.body.tagName, err => err ? next(err) : res.status(200).end()))
 
     // Start or stop download instantly
     app.patch('/v1/releases/:tagName', (req, res, next) => {

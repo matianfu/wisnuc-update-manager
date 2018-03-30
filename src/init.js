@@ -48,6 +48,9 @@ const initAsync = async (root, githubUrl) => {
     }
   }
 
+  // whether use beta release, true for use beta
+  let betaOn = !!config.betaOn
+
   // load local tarballs
   let appBalls = await probeAppBallsAsync(appBallsDir)
 
@@ -80,11 +83,12 @@ const initAsync = async (root, githubUrl) => {
   console.log('root', root)
   console.log('githubUrl', githubUrl)
   console.log('appBalls', appBalls)
+  console.log('betaOn', betaOn)
   console.log('tagName', tagName)
-  console.log('isBeta', isBeta)
+  // console.log('isBeta', isBeta)
   console.log('useGlobalNode', useGlobalNode) 
 
-  return new Model(root, githubUrl, appBalls, tagName, isBeta, useGlobalNode)
+  return new Model(root, githubUrl, appBalls, betaOn, tagName,useGlobalNode)
 }
 
 const init = (root, githubUrl, callback) => initAsync(root, githubUrl)
