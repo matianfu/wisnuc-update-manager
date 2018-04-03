@@ -99,8 +99,8 @@ init(root, githubUrl, (err, model) => {
     // Start or stop download instantly
     app.patch('/v1/releases/:tagName', (req, res, next) => {
       let { state } = req.body
-      if (state !== 'Ready' && state !== 'Idle') {
-        res.status(400).json({ message: 'state must be either Ready or Idle'})
+      if (state !== 'Ready' && state !== 'Stopped') {
+        res.status(400).json({ message: 'state must be either Ready or Stopped'})
       } else {
         if (state === 'Ready') {
           model.releaseStart(req.params.tagName, err => err ? next(err) : res.status(200).end())

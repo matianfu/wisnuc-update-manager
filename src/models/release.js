@@ -45,6 +45,13 @@ class Idle extends State {
   // already stopped, nothing to destroy
 }
 
+// stop working manually, should start manually if wanted
+class Stopped extends State {
+  start () {
+    this.setState('Downloading')
+  }
+}
+
 // timeout to download 
 class Failed extends State {
 
@@ -130,7 +137,7 @@ class Downloading extends State {
   }
 
   stop () {
-    this.setState('Idle')
+    this.setState('Stopped')
   }
 
   view () {
@@ -169,7 +176,7 @@ class Repacking extends State {
 
   // FIXME clean resources
   stop () {
-    this.setState('Idle')
+    this.setState('Stopped')
   }
 }
 
@@ -219,7 +226,7 @@ class Verifying extends State {
 
   // FIXME clean resources
   stop () {
-    this.setState('Idle')
+    this.setState('Stopped')
   }
 }
 
@@ -326,6 +333,7 @@ Release.prototype.Failed = Failed
 Release.prototype.Downloading = Downloading
 Release.prototype.Repacking = Repacking
 Release.prototype.Verifying = Verifying
+Release.prototype.Stopped = Stopped
 
 module.exports = Release
 

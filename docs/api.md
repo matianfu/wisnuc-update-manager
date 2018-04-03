@@ -19,7 +19,7 @@ GET /v1
   },
   releases: [             // array
     {
-      state:              // 'Idle', 'Failed', 'Ready', 'Downloading', 'Repacking', 'Verifying', 
+      state:              // 'Idle', 'Failed', 'Ready', 'Downloading', 'Repacking', 'Verifying', 'Stopped'
                           // ('Downloaded' not used now)
       view: null          /** null or object
                               Failed {

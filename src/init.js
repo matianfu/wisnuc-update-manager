@@ -54,7 +54,7 @@ const initAsync = async (root, githubUrl) => {
   // load local tarballs
   let appBalls = await probeAppBallsAsync(appBallsDir)
 
-  let tagName, isBeta
+  let tagName  //, isBeta
   try {
     // detect working directory
     let release = await probeAppifiAsync(appifiDir)
@@ -65,7 +65,7 @@ const initAsync = async (root, githubUrl) => {
       let localTagNames = appBalls.map(ball => ball.local.tag_name)
       if (localTagNames.includes(release.tag_name)) {
         tagName = release.tag_name
-        isBeta = release.prerelease
+        // isBeta = release.prerelease
       } else {
         throw new Error('current tag name not found')
       }
@@ -88,7 +88,7 @@ const initAsync = async (root, githubUrl) => {
   // console.log('isBeta', isBeta)
   console.log('useGlobalNode', useGlobalNode) 
 
-  return new Model(root, githubUrl, appBalls, betaOn, tagName,useGlobalNode)
+  return new Model(root, githubUrl, appBalls, betaOn, tagName, useGlobalNode)
 }
 
 const init = (root, githubUrl, callback) => initAsync(root, githubUrl)

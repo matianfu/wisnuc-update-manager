@@ -161,10 +161,10 @@ class Model extends EventEmitter {
     // if betaOn, download the latest, no matter it is prerelease or not
     // if betaOff, download the latest stable
     if (this.betaOn) {
-      this.releases.forEach((r, i) => i === 0 ? r.start() : r.stop())
+      this.releases.forEach((r, i) => i === 0 && r.getState() !== 'Stopped' ? r.start() : r.stop())
     } else {
-      let index = this.releases.findIndex(r => r.isBeta() === 'false')
-      this.releases.forEach((r, i) => i === index ? r.start() : r.stop())
+      let index = this.releases.findIndex(r => {return r.isBeta() === false})
+      this.releases.forEach((r, i) => i === index && r.getState() !== 'Stopped' ? r.start() : r.stop())
     }
 
     // if no appifi, start one (not necessarily latest)
