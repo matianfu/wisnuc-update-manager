@@ -86,38 +86,6 @@ class Model extends EventEmitter {
     this.deb = new Deb(names)
   }
 
-  setBeta (val) {
-    let value = !!val
-    // betaOn changed
-    if (this.betaOn !== value) {
-      let config = {}
-      try {
-        let raw = fs.readFileSync(path.join(this.root, 'bootstrap.config.json'))
-        config = JSON.parse(raw)
-      } catch (e) {
-        if (e.code !== 'ENOENT') {
-          console.log('error loading bootstrap.config.json', e)
-        }
-      }
-
-      config.betaOn = value
-      fs.writeFileSync(path.join(this.root, 'bootstrap.config.json', JSON.stringify(config)))
-      this.betaOn = value
-
-      // betaOn: true -> false
-      // 1. check current deployed release is prerelease or not, if it is, stop it.
-      // 2. reqSchedule
-      if (!value && this.appifi && this.appifi.isBeta()) {
-        this.appifi.stopAsync()
-        .then(() => { this.appifi = null })
-      }
-
-      // betaOn: false -> true
-      // in this case, current deployed release is stable, there is no need to stop it.
-      this.reqSchedule()
-    }
-  }
-
   nodePath () {
     return this.globalNode ? 'node' : '/wisnuc/node/base/bin/node'
   }
@@ -307,6 +275,38 @@ class Model extends EventEmitter {
   fetchStart(callback) {
     this.fetch.start()
     process.nextTick(() => callback(null))
+  }
+
+  setBeta (val) {
+    let value = !!val
+    // betaOn changed
+    if (this.betaOn !== value) {
+      let config = {}
+      try {
+        let raw = fs.readFileSync(path.join(this.root, 'bootstrap.config.json'))
+        config = JSON.parse(raw)
+      } catch (e) {
+        if (e.code !== 'ENOENT') {
+          console.log('error loading bootstrap.config.json', e)
+        }
+      }
+
+      config.betaOn = value
+      fs.writeFileSync(path.join(this.root, 'bootstrap.config.json'), JSON.stringify(config))
+      this.betaOn = value
+
+      // betaOn: true -> false
+      // 1. check current deployed release is prerelease or not, if it is, stop it.
+      // 2. reqSchedule
+      if (!value && this.appifi && this.appifi.isBeta()) {
+        this.appifi.stopAsync()
+        .then(() => { this.appifi = null })
+      }
+
+      // betaOn: false -> true
+      // in this case, current deployed release is stable, there is no need to stop it.
+      this.reqSchedule()
+    }
   }
 }
 

@@ -12,7 +12,7 @@ const mkdirpAsync = Promise.promisify(mkdirp)
 const sinon = require('sinon')
 const expect = require('chai').expect
 
-const Appifi = require('src/models/appifi')
+const Appifi = require('../../src/models/appifi')
 
 const cwd = process.cwd()
 const tmptest = path.join(cwd, 'tmptest') 

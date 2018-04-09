@@ -14,7 +14,7 @@ const bodyParser = require('body-parser')
 
 const expect = require('chai').expect
 
-const Model = require('src/models')
+const Model = require('../../src/models/index')
 
 const cwd = process.cwd()
 const tmptest = path.join(cwd, 'tmptest') 
@@ -78,7 +78,7 @@ describe(path.basename(__filename), () => {
     mkdirp.sync(tmpDir)
   })
 
-  it('do nothing', function (done) {
+  it.skip('do nothing', function (done) {
     this.timeout(0)
 
     mkdirp.sync(path.join(tmptest, 'proj', 'build'))
@@ -98,5 +98,38 @@ describe(path.basename(__filename), () => {
         setTimeout(() => server.close(() => done()), 1000)
       })
     })
+  })
+
+  it('new a model', function (done) {
+    this.timeout(0)
+    let model = new Model(tmptest, githubUrl, [], false)
+
+    expect(model.betaOn).to.be.false
+    expect(model.globalNode).to.be.false
+    expect(model.root).to.equal(tmptest)
+    expect(model.tmpDir).to.equal(tmpDir)
+    expect(model.appBallsDir).to.equal(appBallsDir)
+    expect(model.appifiDir).to.equal(appifiDir)
+    done()
+  })
+
+  it('setBeta, false -> true', function(done) {
+    this.timeout(0)
+    let model = new Model(tmptest, githubUrl, [], false)
+    expect(model.betaOn).to.be.false
+
+    model.setBeta(true)
+    let data = JSON.parse(fs.readFileSync(path.join(tmptest, 'bootstrap.config.json')))
+    expect(model.betaOn).to.be.true
+    expect(data.betaOn).to.be.true
+    done()
+  })
+
+  it('betaOn will not change if value of setBeta is the same with current value', done => {
+    let model = new Model(tmptest, githubUrl, [], false)
+    
+    model.setBeta(false)
+    expect(model.betaOn).to.be.false
+    done()
   })
 })

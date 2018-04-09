@@ -95,7 +95,7 @@ class Working extends State {
           this.destroy()
           let e = new Error('size mismatch')
           e.code = 'ESIZEMISMATCH'
-          this.ctx.emit('error', err)
+          this.ctx.emit('error', e)
         }
       } else this.ctx.emit('finished')
     })

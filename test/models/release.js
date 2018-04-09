@@ -9,7 +9,7 @@ const mkdirpAsync = Promise.promisify(mkdirp)
 
 const expect = require('chai').expect
 
-const Release = require('src/models/release')
+const Release = require('../../src/models/release')
 
 const cwd = process.cwd()
 const tmptest = path.join(cwd, 'tmptest') 
@@ -82,18 +82,17 @@ describe(path.basename(__filename), () => {
     mkdirp.sync(mctx.appBallsDir)
   })
 
-  it('new Release from ball should have ctx, tmpDir, appBallsDir, path, local, config, but not remote', 
-    done => {
-      let r = new Release(mctx, mball)
-      expect(r.hasOwnProperty('ctx')).to.be.true
-      expect(r.hasOwnProperty('tmpDir')).to.be.true
-      expect(r.hasOwnProperty('appBallsDir')).to.be.true
-      expect(r.hasOwnProperty('path')).to.be.true
-      expect(r.hasOwnProperty('local')).to.be.true
-      expect(r.hasOwnProperty('config')).to.be.true
-      expect(r.hasOwnProperty('remote')).to.be.false
-      done()
-    })
+  it('new Release from ball should have ctx, tmpDir, appBallsDir, path, local, config, but not remote', done => {
+    let r = new Release(mctx, mball)
+    expect(r.hasOwnProperty('ctx')).to.be.true
+    expect(r.hasOwnProperty('tmpDir')).to.be.true
+    expect(r.hasOwnProperty('appBallsDir')).to.be.true
+    expect(r.hasOwnProperty('path')).to.be.true
+    expect(r.hasOwnProperty('local')).to.be.true
+    expect(r.hasOwnProperty('config')).to.be.true
+    expect(r.hasOwnProperty('remote')).to.be.false
+    done()
+  })
 
   it('new Release from ball should be in Ready state', done => {
     let r = new Release(mctx, mball)
@@ -115,18 +114,24 @@ describe(path.basename(__filename), () => {
     done()
   })
 
-  it('new Release from remote should have ctx, tmpDir, appBallsDir, remote, but not path, local, config', 
-    done => {
-      let r = new Release(mctx, { remote: mrel })
-      expect(r.hasOwnProperty('ctx')).to.be.true
-      expect(r.hasOwnProperty('tmpDir')).to.be.true
-      expect(r.hasOwnProperty('appBallsDir')).to.be.true
-      expect(r.hasOwnProperty('path')).to.be.false
-      expect(r.hasOwnProperty('local')).to.be.false
-      expect(r.hasOwnProperty('config')).to.be.false
-      expect(r.hasOwnProperty('remote')).to.be.true
-      done()
-    })
+  it('new Release from ball can get beta information', done => {
+    let r = new Release(mctx, mball)
+
+    expect(r.isBeta()).to.be.false
+    done()
+  })
+
+  it('new Release from remote should have ctx, tmpDir, appBallsDir, remote, but not path, local, config', done => {
+    let r = new Release(mctx, { remote: mrel })
+    expect(r.hasOwnProperty('ctx')).to.be.true
+    expect(r.hasOwnProperty('tmpDir')).to.be.true
+    expect(r.hasOwnProperty('appBallsDir')).to.be.true
+    expect(r.hasOwnProperty('path')).to.be.false
+    expect(r.hasOwnProperty('local')).to.be.false
+    expect(r.hasOwnProperty('config')).to.be.false
+    expect(r.hasOwnProperty('remote')).to.be.true
+    done()
+  })
 
   it('new Release from remote should be in Idle state', done => {
     let r = new Release(mctx, { remote: mrel })
@@ -148,13 +153,21 @@ describe(path.basename(__filename), () => {
     done()
   })
 
+  it('new Release from remote can get beta information', done => {
+    let r = new Release(mctx, { remote: mrel })
+
+    expect(r.isBeta()).to.be.false
+    done()
+  })
+
   it('start @ Idle', function (done) {
     this.timeout(0) 
     let r = new Release(mctx, { remote: mrel })
     let timer
     r.on('Ready', () => {
       clearInterval(timer)
-      expect(r.path).to.equal('/home/wisnuc/wisnuc-bootstrap/tmptest/appifi-tarballs/appifi-0.9.14-8501308-c8ffd8ab.tar.gz')
+      let rPath = path.join(tmptest, 'appifi-tarballs/appifi-0.9.14-8501308-c8ffd8ab.tar.gz')
+      expect(r.path).to.equal(rPath)
       expect(typeof r.local === 'object').to.be.true
       expect(typeof r.config === 'object').to.be.true
       done()
@@ -170,9 +183,20 @@ describe(path.basename(__filename), () => {
     
     setTimeout(() => {
       r.stop()
-      expect(r.getState()).to.equal('Idle')
+      expect(r.getState()).to.equal('Stopped')
       done()
     }, 100)
+  })
+
+  it('start @ Stopped', done => {
+    let r = new Release(mctx, { remote: mrel })
+    r.start()
+    setTimeout(() => { r.stop() }, 100)
+    setTimeout(() => {
+      r.start()
+      expect(r.getState()).to.equal('Downloading')
+      done()
+    }, 200)
   })
 
 })

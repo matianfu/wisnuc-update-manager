@@ -113,7 +113,7 @@ class Started extends State {
     this.appifi.on('error', err => console.log('Appifi Error in Started: neglected', err))
     this.appifi.on('close', (code, signal) => (this.appifi = null, this.setState('Failed', { code, signal})))
 
-    // this.ctx.ctx.emit('appifiStarted')
+    this.ctx.ctx.emit('appifiStarted')
   }
 
   stop () {
